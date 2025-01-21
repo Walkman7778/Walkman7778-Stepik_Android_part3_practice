@@ -13,6 +13,7 @@ import java.util.List;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
@@ -20,6 +21,7 @@ public class MainViewModel extends AndroidViewModel {
 
 
     private final MutableLiveData<List<Movie>> movies = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isloading = new MutableLiveData<>(false);
 
     private static final String TAG = "MainViewModel";
 
@@ -30,6 +32,7 @@ public class MainViewModel extends AndroidViewModel {
 
     public MainViewModel(@NonNull Application application) {
         super(application);
+        loadMovies();
     }
 
 
@@ -38,10 +41,30 @@ public class MainViewModel extends AndroidViewModel {
     }
 
 
+    public LiveData<Boolean> getIsloading() {
+        return isloading;
+    }
+
     public void loadMovies() {
+        Boolean loading = isloading.getValue();
+        if (loading != null && loading) {
+            return;
+        }
         Disposable disposable = ApiFactory.apiService.loadMovies(page)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe(new Consumer<Disposable>() {
+                    @Override
+                    public void accept(Disposable disposable) throws Throwable {
+                        isloading.setValue(true);
+                    }
+                })
+                .doOnTerminate(new Action() {
+                    @Override
+                    public void run() throws Throwable {
+                        isloading.setValue(false);
+                    }
+                })
                 .subscribe(new Consumer<MovieResponse>() {
                     @Override
                     public void accept(MovieResponse movieResponse) throws Throwable {
@@ -53,12 +76,9 @@ public class MainViewModel extends AndroidViewModel {
                         } else {
                             movies.setValue(movieResponse.getMovies());
                         }
+
+                        Log.d(TAG, String.valueOf(page));
                         page++;
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Throwable {
-                        Log.d(TAG, throwable.toString());
                     }
                 });
         compositeDisposable.add(disposable);

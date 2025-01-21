@@ -1,6 +1,7 @@
 package com.example.moovies;
 
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,11 +26,11 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
 
     private List<Movie> movies = new ArrayList<>();
 
-    private OnReachViewHolder onReachViewHolder;
+    private OnReachEndListener onReachEndListener;
 
 
-    public void setOnReachViewHolder(OnReachViewHolder onReachViewHolder) {
-        this.onReachViewHolder = onReachViewHolder;
+    public void setOnReachEndListener(OnReachEndListener onReachEndListener) {
+        this.onReachEndListener = onReachEndListener;
     }
 
     public void setMovies(List<Movie> movies) {
@@ -54,6 +55,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
 
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
+        Log.d("OnBindViewHolder", String.valueOf(position));
         Movie movie = movies.get(position);
         Glide.with(holder.itemView)
                 .load(movie.getPoster()
@@ -76,8 +78,8 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
         holder.textViewRating.setText(String.valueOf(rating));
 
 
-        if (position == movies.size() - 1 && onReachViewHolder != null) {
-            onReachViewHolder.OnReachEnd();
+        if (position >= movies.size() - 10 && onReachEndListener != null) {
+            onReachEndListener.OnReachEnd();
         }
 
     }
@@ -98,7 +100,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
         }
     }
 
-    interface OnReachViewHolder {
+    interface OnReachEndListener {
         void OnReachEnd();
     }
 
