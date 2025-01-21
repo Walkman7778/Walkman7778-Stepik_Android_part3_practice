@@ -41,5 +41,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         viewModel.loadMovies();
+        moviesAdapter.setOnReachViewHolder(new MoviesAdapter.OnReachViewHolder() {
+            @Override
+            public void OnReachEnd() {
+                viewModel.loadMovies();
+            }
+        });
+
     }
 }

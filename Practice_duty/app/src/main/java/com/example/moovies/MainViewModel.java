@@ -19,7 +19,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class MainViewModel extends AndroidViewModel {
 
 
-
     private final MutableLiveData<List<Movie>> movies = new MutableLiveData<>();
 
     private static final String TAG = "MainViewModel";
@@ -39,15 +38,22 @@ public class MainViewModel extends AndroidViewModel {
     }
 
 
-    public void loadMovies(){
+    public void loadMovies() {
         Disposable disposable = ApiFactory.apiService.loadMovies(page)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<MovieResponse>() {
                     @Override
                     public void accept(MovieResponse movieResponse) throws Throwable {
+                        List<Movie> loadedMovies = movies.getValue();
+
+
+                        if (loadedMovies != null) {
+                            loadedMovies.addAll(movieResponse.getMovies());
+                        } else {
+                            movies.setValue(movieResponse.getMovies());
+                        }
                         page++;
-                        movies.setValue(movieResponse.getMovies());
                     }
                 }, new Consumer<Throwable>() {
                     @Override

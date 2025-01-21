@@ -25,6 +25,13 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
 
     private List<Movie> movies = new ArrayList<>();
 
+    private OnReachViewHolder onReachViewHolder;
+
+
+    public void setOnReachViewHolder(OnReachViewHolder onReachViewHolder) {
+        this.onReachViewHolder = onReachViewHolder;
+    }
+
     public void setMovies(List<Movie> movies) {
         this.movies = movies;
         notifyDataSetChanged();
@@ -69,6 +76,10 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
         holder.textViewRating.setText(String.valueOf(rating));
 
 
+        if (position == movies.size() - 1 && onReachViewHolder != null) {
+            onReachViewHolder.OnReachEnd();
+        }
+
     }
 
     @Override
@@ -85,6 +96,10 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
             imageViewPoster = itemView.findViewById(R.id.imageViewPoster);
             textViewRating = itemView.findViewById(R.id.textViewRating);
         }
+    }
+
+    interface OnReachViewHolder {
+        void OnReachEnd();
     }
 
 
